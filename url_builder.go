@@ -2,13 +2,12 @@ package bingboop
 
 import "fmt"
 
-type urlBuilder interface {
+type URLBuilder interface {
 	SearchDocumentURL(vaultID string) string
 }
 
 // DefaultURLBuilder  ...
-type DefaultURLBuilder struct {
-}
+type DefaultURLBuilder struct{}
 
 // SearchDocumentURL ...
 func (t *DefaultURLBuilder) SearchDocumentURL(vaultID string) string {

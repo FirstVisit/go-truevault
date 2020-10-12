@@ -20,29 +20,33 @@ var (
 
 	// ErrServerError ...
 	ErrServerError = errors.New("error: server error")
+
+	// ErrBadRequest ...
+	ErrBadRequest = errors.New("error: bad request")
 )
 
 // Client is the interface that wraps http calls to TrueVault
+//go:generate mockery --name Client
 type Client interface {
 	SearchDocument(ctx context.Context, vaultID string, filter SearchFilter) (SearchDocumentResult, error)
 }
 
-type truevaultClient struct {
+type trueVaultClient struct {
 	httpClient *http.Client
-	urlBuilder urlBuilder
+	urlBuilder URLBuilder
 	apiKey     string
 }
 
 // NewClient ...
 func NewClient(h *http.Client, a string) Client {
-	return &truevaultClient{
+	return &trueVaultClient{
 		httpClient: h,
 		urlBuilder: &DefaultURLBuilder{},
 		apiKey:     base64.StdEncoding.EncodeToString([]byte(a + ":")),
 	}
 }
 
-func (c *truevaultClient) newRequest(ctx context.Context, method, path, contentType string, body io.Reader) (*http.Request, error) {
+func (c *trueVaultClient) newRequest(ctx context.Context, method, path, contentType string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(ctx, method, path, body)
 	if err != nil {
 		return nil, err
@@ -54,26 +58,29 @@ func (c *truevaultClient) newRequest(ctx context.Context, method, path, contentT
 	return req, nil
 }
 
-func (c *truevaultClient) do(req *http.Request, v interface{}) error {
+func (c *trueVaultClient) do(req *http.Request, v interface{}) error {
 	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	switch res.StatusCode {
 	case http.StatusUnauthorized:
 		return ErrUnauthorized
 	case http.StatusInternalServerError:
 		return ErrServerError
+	case http.StatusBadRequest:
+		return ErrBadRequest
 	}
 
-	err = json.NewDecoder(res.Body).Decode(v)
-
-	return err
+	return json.NewDecoder(res.Body).Decode(v)
 }
 
-func (c *truevaultClient) SearchDocument(ctx context.Context, vaultID string, filter SearchFilter) (SearchDocumentResult, error) {
+func (c *trueVaultClient) SearchDocument(ctx context.Context, vaultID string, filter SearchFilter) (SearchDocumentResult, error) {
 	var result SearchDocumentResult
 	buf := new(bytes.Buffer)
 	err := json.NewEncoder(buf).Encode(filter)
