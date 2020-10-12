@@ -1,6 +1,7 @@
 package bingboop
 
 import (
+	"bytes"
 	"encoding/json"
 	"time"
 
@@ -242,6 +243,10 @@ type (
 		TransactionID uuid.UUID
 	}
 )
+
+func (r *SearchDocument) DecodeDocument(v interface{}) error {
+	return json.NewDecoder(bytes.NewReader([]byte(r.Document))).Decode(v)
+}
 
 const (
 	And FilterType = "and"

@@ -29,7 +29,7 @@ type Client interface {
 
 type truevaultClient struct {
 	httpClient *http.Client
-	urlBuilder UrlBuilder
+	urlBuilder urlBuilder
 	apiKey     string
 }
 
@@ -75,7 +75,8 @@ func (c *truevaultClient) do(req *http.Request, v interface{}) error {
 
 func (c *truevaultClient) SearchDocument(ctx context.Context, vaultID string, filter SearchFilter) (SearchDocumentResult, error) {
 	var result SearchDocumentResult
-	b, err := json.Marshal(filter)
+	buf := new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(filter)
 
 	if err != nil {
 		return SearchDocumentResult{}, err
@@ -83,7 +84,7 @@ func (c *truevaultClient) SearchDocument(ctx context.Context, vaultID string, fi
 
 	path := c.urlBuilder.SearchDocumentURL(vaultID)
 
-	req, err := c.newRequest(ctx, http.MethodPost, path, contentTypeApplicationJSON, bytes.NewBuffer(b))
+	req, err := c.newRequest(ctx, http.MethodPost, path, contentTypeApplicationJSON, buf)
 
 	if err != nil {
 		return SearchDocumentResult{}, err
