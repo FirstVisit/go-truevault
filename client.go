@@ -1,4 +1,4 @@
-package go_truevault
+package gotruevault
 
 import (
 	"bytes"
@@ -46,6 +46,28 @@ func NewClient(h *http.Client, a string) Client {
 	}
 }
 
+func (c *trueVaultClient) SearchDocument(ctx context.Context, vaultID string, filter SearchFilter) (SearchDocumentResult, error) {
+	var result SearchDocumentResult
+	buf := new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(filter)
+
+	if err != nil {
+		return SearchDocumentResult{}, err
+	}
+
+	path := c.urlBuilder.SearchDocumentURL(vaultID)
+
+	req, err := c.newRequest(ctx, http.MethodPost, path, contentTypeApplicationJSON, buf)
+
+	if err != nil {
+		return SearchDocumentResult{}, err
+	}
+
+	err = c.do(req, &result)
+
+	return result, err
+}
+
 func (c *trueVaultClient) newRequest(ctx context.Context, method, path, contentType string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(ctx, method, path, body)
 	if err != nil {
@@ -78,26 +100,4 @@ func (c *trueVaultClient) do(req *http.Request, v interface{}) error {
 	}
 
 	return json.NewDecoder(res.Body).Decode(v)
-}
-
-func (c *trueVaultClient) SearchDocument(ctx context.Context, vaultID string, filter SearchFilter) (SearchDocumentResult, error) {
-	var result SearchDocumentResult
-	buf := new(bytes.Buffer)
-	err := json.NewEncoder(buf).Encode(filter)
-
-	if err != nil {
-		return SearchDocumentResult{}, err
-	}
-
-	path := c.urlBuilder.SearchDocumentURL(vaultID)
-
-	req, err := c.newRequest(ctx, http.MethodPost, path, contentTypeApplicationJSON, buf)
-
-	if err != nil {
-		return SearchDocumentResult{}, err
-	}
-
-	err = c.do(req, &result)
-
-	return result, err
 }

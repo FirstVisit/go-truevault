@@ -1,4 +1,4 @@
-package go_truevault
+package gotruevault
 
 import "fmt"
 
