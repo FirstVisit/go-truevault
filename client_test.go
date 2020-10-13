@@ -1,4 +1,4 @@
-package bingboop
+package go_truevault
 
 import (
 	"context"

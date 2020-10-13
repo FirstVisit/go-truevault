@@ -1,4 +1,4 @@
-module github.com/dooven/bingboop
+module github.com/FirstVisit/go-truevault
 
 go 1.15
 
