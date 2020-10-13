@@ -37,7 +37,7 @@ type trueVaultClient struct {
 	apiKey     string
 }
 
-// NewClient ...
+// NewClient creates a TrueVault client
 func NewClient(h *http.Client, a string) Client {
 	return &trueVaultClient{
 		httpClient: h,

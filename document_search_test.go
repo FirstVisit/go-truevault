@@ -73,3 +73,29 @@ func TestSearchTypeMarshalling(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, string(b), expected)
 }
+
+func TestSearchDocument_DecodeDocument(t *testing.T) {
+	type document struct {
+		X int
+		Y string
+	}
+
+	tests := []struct {
+		name     string
+		doc      string
+		expected document
+	}{
+		{name: "int fields", doc: "eyJYIjoxMjM0fQ==", expected: document{X: 1234}},
+		{name: "string fields", doc: "eyJZIjoiVEVTVElORyJ9", expected: document{Y: "TESTING"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var result document
+			r := &SearchDocument{
+				Document: tt.doc,
+			}
+			assert.Nil(t, r.DecodeDocument(&result))
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}

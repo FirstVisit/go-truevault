@@ -2,6 +2,7 @@ package bingboop
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"time"
 
@@ -245,7 +246,11 @@ type (
 )
 
 func (r *SearchDocument) DecodeDocument(v interface{}) error {
-	return json.NewDecoder(bytes.NewReader([]byte(r.Document))).Decode(v)
+	decodeString, err := base64.StdEncoding.DecodeString(r.Document)
+	if err != nil {
+		return err
+	}
+	return json.NewDecoder(bytes.NewReader(decodeString)).Decode(v)
 }
 
 const (
