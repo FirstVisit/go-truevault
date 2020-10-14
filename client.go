@@ -31,18 +31,31 @@ type Client interface {
 }
 
 type trueVaultClient struct {
-	httpClient *http.Client
-	urlBuilder URLBuilder
-	apiKey     string
+	httpClient    *http.Client
+	urlBuilder    URLBuilder
+	authorization string
 }
 
 // NewClient creates a TrueVault client
-func NewClient(h *http.Client, a string) Client {
+func NewClient(h *http.Client, accessTokenOrKey string) Client {
 	return &trueVaultClient{
-		httpClient: h,
-		urlBuilder: &DefaultURLBuilder{},
-		apiKey:     base64.StdEncoding.EncodeToString([]byte(a + ":")),
+		httpClient:    h,
+		urlBuilder:    &DefaultURLBuilder{},
+		authorization: buildAuthorizationValue(accessTokenOrKey),
 	}
+}
+
+// WithNewAccessTokenOrKey creates a  new Cient instance with new Access Token or API key
+func (c *trueVaultClient) WithNewAccessTokenOrKey(accessTokenOrKey string) Client {
+	return &trueVaultClient{
+		httpClient:    c.httpClient,
+		urlBuilder:    c.urlBuilder,
+		authorization: buildAuthorizationValue(accessTokenOrKey),
+	}
+}
+
+func buildAuthorizationValue(key string) string {
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(key+":"))
 }
 
 func (c *trueVaultClient) newRequest(ctx context.Context, method, path, contentType string, body io.Reader) (*http.Request, error) {
@@ -51,7 +64,7 @@ func (c *trueVaultClient) newRequest(ctx context.Context, method, path, contentT
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Basic "+c.apiKey)
+	req.Header.Set("Authorization", c.authorization)
 	req.Header.Set("Content-Type", contentType)
 
 	return req, nil
