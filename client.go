@@ -45,7 +45,7 @@ func NewClient(h *http.Client, accessTokenOrKey string) Client {
 	}
 }
 
-// WithNewAccessTokenOrKey creates a  new Cient instance with new Access Token or API key
+// WithNewAccessTokenOrKey creates a  new Client instance with new Access Token or API key
 func (c *trueVaultClient) WithNewAccessTokenOrKey(accessTokenOrKey string) Client {
 	return &trueVaultClient{
 		httpClient:    c.httpClient,
