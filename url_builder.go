@@ -6,10 +6,10 @@ type URLBuilder interface {
 	SearchDocumentURL(vaultID string) string
 }
 
-// DefaultURLBuilder  ...
-type DefaultURLBuilder struct{}
+// defaultURLBuilder  ...
+type defaultURLBuilder struct{}
 
 // SearchDocumentURL ...
-func (t *DefaultURLBuilder) SearchDocumentURL(vaultID string) string {
+func (t *defaultURLBuilder) SearchDocumentURL(vaultID string) string {
 	return fmt.Sprintf("https://api.truevault.com/v1/vaults/%s/search", vaultID)
 }
