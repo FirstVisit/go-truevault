@@ -5,8 +5,7 @@ package mocks
 import (
 	context "context"
 
-	bingboop "github.com/dooven/bingboop"
-
+	gotruevault "github.com/FirstVisit/go-truevault"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -16,18 +15,18 @@ type Client struct {
 }
 
 // SearchDocument provides a mock function with given fields: ctx, vaultID, filter
-func (_m *Client) SearchDocument(ctx context.Context, vaultID string, filter bingboop.SearchFilter) (bingboop.SearchDocumentResult, error) {
+func (_m *Client) SearchDocument(ctx context.Context, vaultID string, filter gotruevault.SearchFilter) (gotruevault.SearchDocumentResult, error) {
 	ret := _m.Called(ctx, vaultID, filter)
 
-	var r0 bingboop.SearchDocumentResult
-	if rf, ok := ret.Get(0).(func(context.Context, string, bingboop.SearchFilter) bingboop.SearchDocumentResult); ok {
+	var r0 gotruevault.SearchDocumentResult
+	if rf, ok := ret.Get(0).(func(context.Context, string, gotruevault.SearchFilter) gotruevault.SearchDocumentResult); ok {
 		r0 = rf(ctx, vaultID, filter)
 	} else {
-		r0 = ret.Get(0).(bingboop.SearchDocumentResult)
+		r0 = ret.Get(0).(gotruevault.SearchDocumentResult)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, bingboop.SearchFilter) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, gotruevault.SearchFilter) error); ok {
 		r1 = rf(ctx, vaultID, filter)
 	} else {
 		r1 = ret.Error(1)
