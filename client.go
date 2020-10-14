@@ -40,7 +40,7 @@ type trueVaultClient struct {
 func NewClient(h *http.Client, accessTokenOrKey string) Client {
 	return &trueVaultClient{
 		httpClient:    h,
-		urlBuilder:    &DefaultURLBuilder{},
+		urlBuilder:    &defaultURLBuilder{},
 		authorization: buildAuthorizationValue(accessTokenOrKey),
 	}
 }
