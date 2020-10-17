@@ -8,7 +8,8 @@ import (
 	"net/http"
 
 	gotruevault "github.com/FirstVisit/go-truevault"
-	"github.com/google/uuid"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type (
