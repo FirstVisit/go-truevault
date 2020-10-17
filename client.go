@@ -60,11 +60,7 @@ func NewDefaultClient(h *http.Client, accessTokenOrKey string) Client {
 
 // WithNewAccessTokenOrKey creates a  new Client instance with new Access Token or API key
 func (c *Client) WithNewAccessTokenOrKey(accessTokenOrKey string) Client {
-	return Client{
-		httpClient:    c.httpClient,
-		URLBuilder:    c.URLBuilder,
-		authorization: buildAuthorizationValue(accessTokenOrKey),
-	}
+	return New(c.httpClient, c.URLBuilder, accessTokenOrKey)
 }
 
 func buildAuthorizationValue(key string) string {
