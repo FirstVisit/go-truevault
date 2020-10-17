@@ -9,7 +9,7 @@ import (
 
 	gotruevault "github.com/FirstVisit/go-truevault"
 	"github.com/FirstVisit/go-truevault/client"
-	_clienMock "github.com/FirstVisit/go-truevault/client/mocks"
+	_clientMock "github.com/FirstVisit/go-truevault/client/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/tj/assert"
 )
@@ -46,7 +46,7 @@ func Test_trueVaultClient_SearchDocument_ReturnsCorrectStatusCode(t *testing.T) 
 		w.WriteHeader(http.StatusUnauthorized)
 	}))
 
-	urlBuilder := new(_clienMock.URLBuilder)
+	urlBuilder := new(_clientMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
 	service := New(client.New(http.DefaultClient, urlBuilder, ""))
 	_, err := service.SearchDocument(context.TODO(), "vaultID", gotruevault.SearchOption{})
@@ -57,7 +57,7 @@ func Test_trueVaultClient_SearchDocument_ReturnsCorrectStatusCode(t *testing.T) 
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 
-	urlBuilder = new(_clienMock.URLBuilder)
+	urlBuilder = new(_clientMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
 	service = New(client.New(http.DefaultClient, urlBuilder, ""))
 	_, err = service.SearchDocument(context.TODO(), "vaultID", gotruevault.SearchOption{})
@@ -71,7 +71,7 @@ func Test_trueVaultClient_SearchDocument_ReturnsSearchResult(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(expectedResult)
 	}))
 
-	urlBuilder := new(_clienMock.URLBuilder)
+	urlBuilder := new(_clientMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
 	service := New(client.New(http.DefaultClient, urlBuilder, ""))
 	result, err := service.SearchDocument(context.TODO(), "testing", gotruevault.SearchOption{})
