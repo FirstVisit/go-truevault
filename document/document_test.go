@@ -9,8 +9,8 @@ import (
 
 	gotruevault "github.com/FirstVisit/go-truevault"
 	_clientMock "github.com/FirstVisit/go-truevault/mocks"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/tj/assert"
 )
 
 func TestSearchDocument_DecodeDocument(t *testing.T) {
