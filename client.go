@@ -1,16 +1,17 @@
-package client
+package gotruevault
 
 import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 )
 
 const (
-	contentTypeApplicationJSON = "application/json"
+	ContentTypeApplicationJSON = "application/json"
 )
 
 var (
@@ -23,6 +24,19 @@ var (
 	// ErrBadRequest ...
 	ErrBadRequest = errors.New("error: bad request")
 )
+
+//go:generate mockery --name URLBuilder
+type URLBuilder interface {
+	SearchDocumentURL(vaultID string) string
+}
+
+// defaultURLBuilder  ...
+type defaultURLBuilder struct{}
+
+// SearchDocumentURL ...
+func (t *defaultURLBuilder) SearchDocumentURL(vaultID string) string {
+	return fmt.Sprintf("https://api.truevault.com/v1/vaults/%s/search", vaultID)
+}
 
 type Client struct {
 	URLBuilder    URLBuilder

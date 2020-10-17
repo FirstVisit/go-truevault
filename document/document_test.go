@@ -8,8 +8,7 @@ import (
 	"testing"
 
 	gotruevault "github.com/FirstVisit/go-truevault"
-	"github.com/FirstVisit/go-truevault/client"
-	_clientMock "github.com/FirstVisit/go-truevault/client/mocks"
+	_clientMock "github.com/FirstVisit/go-truevault/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/tj/assert"
 )
@@ -48,9 +47,9 @@ func Test_trueVaultClient_SearchDocument_ReturnsCorrectStatusCode(t *testing.T) 
 
 	urlBuilder := new(_clientMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
-	service := New(client.New(http.DefaultClient, urlBuilder, ""))
+	service := New(gotruevault.New(http.DefaultClient, urlBuilder, ""))
 	_, err := service.SearchDocument(context.TODO(), "vaultID", gotruevault.SearchOption{})
-	assert.Equal(t, err, client.ErrUnauthorized)
+	assert.Equal(t, err, gotruevault.ErrUnauthorized)
 
 	// Internal Server Error
 	ts = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -59,9 +58,9 @@ func Test_trueVaultClient_SearchDocument_ReturnsCorrectStatusCode(t *testing.T) 
 
 	urlBuilder = new(_clientMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
-	service = New(client.New(http.DefaultClient, urlBuilder, ""))
+	service = New(gotruevault.New(http.DefaultClient, urlBuilder, ""))
 	_, err = service.SearchDocument(context.TODO(), "vaultID", gotruevault.SearchOption{})
-	assert.Equal(t, err, client.ErrServerError)
+	assert.Equal(t, err, gotruevault.ErrServerError)
 }
 
 func Test_trueVaultClient_SearchDocument_ReturnsSearchResult(t *testing.T) {
@@ -73,7 +72,7 @@ func Test_trueVaultClient_SearchDocument_ReturnsSearchResult(t *testing.T) {
 
 	urlBuilder := new(_clientMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
-	service := New(client.New(http.DefaultClient, urlBuilder, ""))
+	service := New(gotruevault.New(http.DefaultClient, urlBuilder, ""))
 	result, err := service.SearchDocument(context.TODO(), "testing", gotruevault.SearchOption{})
 	assert.Nil(t, err)
 	assert.Equal(t, result, expectedResult)

@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	gotruevault "github.com/FirstVisit/go-truevault"
-	"github.com/FirstVisit/go-truevault/client"
 	"github.com/google/uuid"
 )
 
@@ -56,11 +55,11 @@ type Document interface {
 }
 
 type defaultDocumentService struct {
-	*client.Client
+	*gotruevault.Client
 }
 
 // New creates a new document service
-func New(client client.Client) Document {
+func New(client gotruevault.Client) Document {
 	return &defaultDocumentService{
 		Client: &client,
 	}
@@ -76,7 +75,7 @@ func (r *defaultDocumentService) SearchDocument(ctx context.Context, vaultID str
 
 	path := r.URLBuilder.SearchDocumentURL(vaultID)
 
-	req, err := r.NewRequest(ctx, http.MethodPost, path, client.ContentTypeApplicationJSON, buf)
+	req, err := r.NewRequest(ctx, http.MethodPost, path, gotruevault.ContentTypeApplicationJSON, buf)
 
 	if err != nil {
 		return SearchDocumentResult{}, err
