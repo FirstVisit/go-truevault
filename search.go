@@ -114,6 +114,23 @@ type (
 	Range struct {
 		Value RangeValue
 	}
+
+	singleSearchValueJSON struct {
+		Type          string      `json:"type,omitempty"`
+		Value         SearchValue `json:"value,omitempty"`
+		CaseSensitive bool        `json:"case_sensitive,omitempty"`
+	}
+
+	multiSearchValueJSON struct {
+		Type          string        `json:"type,omitempty"`
+		Value         []SearchValue `json:"value,omitempty"`
+		CaseSensitive bool          `json:"case_sensitive,omitempty"`
+	}
+
+	rangeSearchValueJSON struct {
+		Type  string     `json:"type,omitempty"`
+		Value RangeValue `json:"value,omitempty"`
+	}
 )
 
 func (i In) searchType()       {}
@@ -125,11 +142,7 @@ func (i Range) searchType()    {}
 
 // MarshalJSON ...
 func (i In) MarshalJSON() (data []byte, err error) {
-	return json.Marshal(struct {
-		Type          string        `json:"type,omitempty"`
-		Value         []SearchValue `json:"value,omitempty"`
-		CaseSensitive bool          `json:"case_sensitive,omitempty"`
-	}{
+	return json.Marshal(multiSearchValueJSON{
 		Type:          "in",
 		Value:         i.Value,
 		CaseSensitive: i.CaseSensitive,
@@ -138,11 +151,7 @@ func (i In) MarshalJSON() (data []byte, err error) {
 
 // MarshalJSON ...
 func (i Eq) MarshalJSON() (data []byte, err error) {
-	return json.Marshal(struct {
-		Type          string      `json:"type,omitempty"`
-		Value         SearchValue `json:"value,omitempty"`
-		CaseSensitive bool        `json:"case_sensitive,omitempty"`
-	}{
+	return json.Marshal(singleSearchValueJSON{
 		Type:          "eq",
 		Value:         i.Value,
 		CaseSensitive: i.CaseSensitive,
@@ -151,11 +160,7 @@ func (i Eq) MarshalJSON() (data []byte, err error) {
 
 // MarshalJSON ...
 func (i Not) MarshalJSON() (data []byte, err error) {
-	return json.Marshal(struct {
-		Type          string      `json:"type,omitempty"`
-		Value         SearchValue `json:"value,omitempty"`
-		CaseSensitive bool        `json:"case_sensitive,omitempty"`
-	}{
+	return json.Marshal(singleSearchValueJSON{
 		Type:          "not",
 		Value:         i.Value,
 		CaseSensitive: i.CaseSensitive,
@@ -164,11 +169,7 @@ func (i Not) MarshalJSON() (data []byte, err error) {
 
 // MarshalJSON ...
 func (i NotIn) MarshalJSON() (data []byte, err error) {
-	return json.Marshal(struct {
-		Type          string        `json:"type,omitempty"`
-		Value         []SearchValue `json:"value,omitempty"`
-		CaseSensitive bool          `json:"case_sensitive,omitempty"`
-	}{
+	return json.Marshal(multiSearchValueJSON{
 		Type:          "not_in",
 		Value:         i.Value,
 		CaseSensitive: i.CaseSensitive,
@@ -177,11 +178,7 @@ func (i NotIn) MarshalJSON() (data []byte, err error) {
 
 // MarshalJSON ...
 func (i Wildcard) MarshalJSON() (data []byte, err error) {
-	return json.Marshal(struct {
-		Type          string      `json:"type,omitempty"`
-		Value         SearchValue `json:"value,omitempty"`
-		CaseSensitive bool        `json:"case_sensitive,omitempty"`
-	}{
+	return json.Marshal(singleSearchValueJSON{
 		Type:          "wildcard",
 		Value:         i.Value,
 		CaseSensitive: i.CaseSensitive,
@@ -190,10 +187,7 @@ func (i Wildcard) MarshalJSON() (data []byte, err error) {
 
 // MarshalJSON ...
 func (i Range) MarshalJSON() (data []byte, err error) {
-	return json.Marshal(struct {
-		Type  string     `json:"type,omitempty"`
-		Value RangeValue `json:"value,omitempty"`
-	}{
+	return json.Marshal(rangeSearchValueJSON{
 		Type:  "range",
 		Value: i.Value,
 	})
