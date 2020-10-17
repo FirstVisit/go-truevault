@@ -32,10 +32,10 @@ type (
 
 	// SearchDocumentResult ...
 	SearchDocumentResult struct {
-		Info          SearchDocumentResultInfo
-		Documents     SearchDocuments
-		Result        string
-		TransactionID uuid.UUID
+		Info          SearchDocumentResultInfo `json:"info,omitempty"`
+		Documents     SearchDocuments          `json:"documents,omitempty"`
+		Result        string                   `json:"result,omitempty"`
+		TransactionID uuid.UUID                `json:"transaction_id,omitempty"`
 	}
 )
 
@@ -60,9 +60,7 @@ type TrueVaultDocument struct {
 
 // New creates a new document service
 func New(client gotruevault.Client) Document {
-	return &TrueVaultDocument{
-		Client: &client,
-	}
+	return &TrueVaultDocument{&client}
 }
 
 // SearchDocument https://docs.truevault.com/documentsearch#search-documents
