@@ -40,15 +40,6 @@ type (
 	}
 )
 
-//go:generate mockery --name Document
-type Document interface {
-	SearchDocument(ctx context.Context, vaultID string, filter gotruevault.SearchFilter) (SearchDocumentResult, error)
-}
-
-type defaultDocumentService struct {
-	*client.Client
-}
-
 // DecodeDocument ...
 func (r *SearchDocument) DecodeDocument(v interface{}) error {
 	decodeString, err := base64.StdEncoding.DecodeString(r.Document)
@@ -58,28 +49,40 @@ func (r *SearchDocument) DecodeDocument(v interface{}) error {
 	return json.NewDecoder(bytes.NewReader(decodeString)).Decode(v)
 }
 
+// Document ...
+//go:generate mockery --name Document
+type Document interface {
+	SearchDocument(ctx context.Context, vaultID string, filter gotruevault.SearchOption) (SearchDocumentResult, error)
+}
+
+type defaultDocumentService struct {
+	*client.Client
+}
+
+// New creates a new document service
 func New(client client.Client) Document {
 	return &defaultDocumentService{
 		Client: &client,
 	}
 }
 
-func (d *defaultDocumentService) SearchDocument(ctx context.Context, vaultID string, filter gotruevault.SearchFilter) (SearchDocumentResult, error) {
+// SearchDocument https://docs.truevault.com/documentsearch#search-documents
+func (r *defaultDocumentService) SearchDocument(ctx context.Context, vaultID string, filter gotruevault.SearchOption) (SearchDocumentResult, error) {
 	var result SearchDocumentResult
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(filter); err != nil {
 		return SearchDocumentResult{}, err
 	}
 
-	path := d.UrlBuilder.SearchDocumentURL(vaultID)
+	path := r.UrlBuilder.SearchDocumentURL(vaultID)
 
-	req, err := d.NewRequest(ctx, http.MethodPost, path, client.ContentTypeApplicationJSON, buf)
+	req, err := r.NewRequest(ctx, http.MethodPost, path, client.ContentTypeApplicationJSON, buf)
 
 	if err != nil {
 		return SearchDocumentResult{}, err
 	}
 
-	err = d.Do(req, &result)
+	err = r.Do(req, &result)
 
 	return result, err
 }

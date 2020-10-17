@@ -206,8 +206,8 @@ type (
 	// SortOrder ...
 	SortOrder string
 
-	// SearchFilter ...
-	SearchFilter struct {
+	// SearchOption ...
+	SearchOption struct {
 		Filter     map[string]SearchType  `json:"filter,omitempty"`
 		FilterType FilterType             `json:"filter_type,omitempty"`
 		Page       int                    `json:"page,omitempty"`
