@@ -25,30 +25,30 @@ var (
 )
 
 type Client struct {
+	URLBuilder    URLBuilder
 	httpClient    *http.Client
-	UrlBuilder    URLBuilder
 	authorization string
 }
 
-// NewClient creates a TrueVault client
-func NewClient(h *http.Client, ub URLBuilder, accessTokenOrKey string) Client {
+// New creates a TrueVault client
+func New(h *http.Client, ub URLBuilder, accessTokenOrKey string) Client {
 	return Client{
 		httpClient:    h,
-		UrlBuilder:    ub,
+		URLBuilder:    ub,
 		authorization: buildAuthorizationValue(accessTokenOrKey),
 	}
 }
 
 // NewDefaultClient creates a TrueVault client with the default URLBuilder
 func NewDefaultClient(h *http.Client, accessTokenOrKey string) Client {
-	return NewClient(h, &defaultURLBuilder{}, accessTokenOrKey)
+	return New(h, &defaultURLBuilder{}, accessTokenOrKey)
 }
 
 // WithNewAccessTokenOrKey creates a  new Client instance with new Access Token or API key
 func (c *Client) WithNewAccessTokenOrKey(accessTokenOrKey string) Client {
 	return Client{
 		httpClient:    c.httpClient,
-		UrlBuilder:    c.UrlBuilder,
+		URLBuilder:    c.URLBuilder,
 		authorization: buildAuthorizationValue(accessTokenOrKey),
 	}
 }
@@ -57,6 +57,7 @@ func buildAuthorizationValue(key string) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(key+":"))
 }
 
+// NewRequest ...
 func (c *Client) NewRequest(ctx context.Context, method, path, contentType string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(ctx, method, path, body)
 	if err != nil {
@@ -69,6 +70,7 @@ func (c *Client) NewRequest(ctx context.Context, method, path, contentType strin
 	return req, nil
 }
 
+// Do ...
 func (c *Client) Do(req *http.Request, v interface{}) error {
 	res, err := c.httpClient.Do(req)
 	if err != nil {

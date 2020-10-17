@@ -74,7 +74,7 @@ func (r *defaultDocumentService) SearchDocument(ctx context.Context, vaultID str
 		return SearchDocumentResult{}, err
 	}
 
-	path := r.UrlBuilder.SearchDocumentURL(vaultID)
+	path := r.URLBuilder.SearchDocumentURL(vaultID)
 
 	req, err := r.NewRequest(ctx, http.MethodPost, path, client.ContentTypeApplicationJSON, buf)
 

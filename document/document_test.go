@@ -48,7 +48,7 @@ func Test_trueVaultClient_SearchDocument_ReturnsCorrectStatusCode(t *testing.T) 
 
 	urlBuilder := new(_clienMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
-	service := New(client.NewClient(http.DefaultClient, urlBuilder, ""))
+	service := New(client.New(http.DefaultClient, urlBuilder, ""))
 	_, err := service.SearchDocument(context.TODO(), "vaultID", gotruevault.SearchOption{})
 	assert.Equal(t, err, client.ErrUnauthorized)
 
@@ -59,7 +59,7 @@ func Test_trueVaultClient_SearchDocument_ReturnsCorrectStatusCode(t *testing.T) 
 
 	urlBuilder = new(_clienMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
-	service = New(client.NewClient(http.DefaultClient, urlBuilder, ""))
+	service = New(client.New(http.DefaultClient, urlBuilder, ""))
 	_, err = service.SearchDocument(context.TODO(), "vaultID", gotruevault.SearchOption{})
 	assert.Equal(t, err, client.ErrServerError)
 }
@@ -73,7 +73,7 @@ func Test_trueVaultClient_SearchDocument_ReturnsSearchResult(t *testing.T) {
 
 	urlBuilder := new(_clienMock.URLBuilder)
 	urlBuilder.On("SearchDocumentURL", mock.Anything).Once().Return(ts.URL)
-	service := New(client.NewClient(http.DefaultClient, urlBuilder, ""))
+	service := New(client.New(http.DefaultClient, urlBuilder, ""))
 	result, err := service.SearchDocument(context.TODO(), "testing", gotruevault.SearchOption{})
 	assert.Nil(t, err)
 	assert.Equal(t, result, expectedResult)
