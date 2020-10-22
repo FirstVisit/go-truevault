@@ -8,12 +8,12 @@ import (
 )
 
 type (
-	// SearchValue ...
+	// SearchValue an interface that represents an search value
 	SearchValue interface {
 		searchValue()
 	}
 
-	// SearchValues ...
+	// SearchValues alias for a list of SearchValue
 	SearchValues []SearchValue
 
 	// String implements SearchValue that holds a string value
@@ -51,22 +51,22 @@ func (i Int) searchValue()        {}
 func (i Time) searchValue()       {}
 func (i RangeValue) searchValue() {}
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of String
 func (i String) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(i.Value)
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of Float64
 func (i Float64) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(i.Value)
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of Int
 func (i Int) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(i.Value)
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of Time
 func (i Time) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(i.Value)
 }
@@ -140,7 +140,7 @@ func (i NotIn) searchType()    {}
 func (i Wildcard) searchType() {}
 func (i Range) searchType()    {}
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of In
 func (i In) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(multiSearchValueJSON{
 		Type:          "in",
@@ -149,7 +149,7 @@ func (i In) MarshalJSON() (data []byte, err error) {
 	})
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of Eq
 func (i Eq) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(singleSearchValueJSON{
 		Type:          "eq",
@@ -158,7 +158,7 @@ func (i Eq) MarshalJSON() (data []byte, err error) {
 	})
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of Not
 func (i Not) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(singleSearchValueJSON{
 		Type:          "not",
@@ -167,7 +167,7 @@ func (i Not) MarshalJSON() (data []byte, err error) {
 	})
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of NotIn
 func (i NotIn) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(multiSearchValueJSON{
 		Type:          "not_in",
@@ -176,7 +176,7 @@ func (i NotIn) MarshalJSON() (data []byte, err error) {
 	})
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of Wildcard
 func (i Wildcard) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(singleSearchValueJSON{
 		Type:          "wildcard",
@@ -185,7 +185,7 @@ func (i Wildcard) MarshalJSON() (data []byte, err error) {
 	})
 }
 
-// MarshalJSON ...
+// MarshalJSON returns JSON encoding of Range
 func (i Range) MarshalJSON() (data []byte, err error) {
 	return json.Marshal(rangeSearchValueJSON{
 		Type:  "range",

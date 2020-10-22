@@ -55,6 +55,7 @@ type Document interface {
 	SearchDocument(ctx context.Context, vaultID string, filter gotruevault.SearchOption) (SearchDocumentResult, error)
 }
 
+// TrueVaultDocument implements the Document interface
 type TrueVaultDocument struct {
 	*gotruevault.Client
 }

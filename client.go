@@ -7,10 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
 const (
+	//ContentTypeApplicationJSON application/json mime type
 	ContentTypeApplicationJSON = "application/json"
 )
 
@@ -25,26 +27,28 @@ var (
 	ErrBadRequest = errors.New("error: bad request")
 )
 
+//URLBuilder is the interface for building URLs
 //go:generate mockery --name URLBuilder
 type URLBuilder interface {
 	SearchDocumentURL(vaultID string) string
 }
 
-// defaultURLBuilder  ...
-type defaultURLBuilder struct{}
+//DefaultURLBuilder implements URLBuilder interface
+type DefaultURLBuilder struct{}
 
 // SearchDocumentURL ...
-func (t *defaultURLBuilder) SearchDocumentURL(vaultID string) string {
+func (t *DefaultURLBuilder) SearchDocumentURL(vaultID string) string {
 	return fmt.Sprintf("https://api.truevault.com/v1/vaults/%s/search", vaultID)
 }
 
+//Client contains the base http requirements to make requests to TrueVault
 type Client struct {
 	URLBuilder    URLBuilder
 	httpClient    *http.Client
 	authorization string
 }
 
-// New creates a TrueVault client
+// New creates a new Client instance
 func New(h *http.Client, ub URLBuilder, accessTokenOrKey string) Client {
 	return Client{
 		httpClient:    h,
@@ -53,9 +57,9 @@ func New(h *http.Client, ub URLBuilder, accessTokenOrKey string) Client {
 	}
 }
 
-// NewDefaultClient creates a TrueVault client with the default URLBuilder
+// NewDefaultClient creates a Client with the default URLBuilder
 func NewDefaultClient(h *http.Client, accessTokenOrKey string) Client {
-	return New(h, &defaultURLBuilder{}, accessTokenOrKey)
+	return New(h, &DefaultURLBuilder{}, accessTokenOrKey)
 }
 
 // WithNewAccessTokenOrKey creates a  new Client instance with new Access Token or API key
@@ -67,7 +71,7 @@ func buildAuthorizationValue(key string) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(key+":"))
 }
 
-// NewRequest ...
+// NewRequest builds an http.Request that contains the Authorization and Content-Type header
 func (c *Client) NewRequest(ctx context.Context, method, path, contentType string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(ctx, method, path, body)
 	if err != nil {
@@ -80,7 +84,7 @@ func (c *Client) NewRequest(ctx context.Context, method, path, contentType strin
 	return req, nil
 }
 
-// Do ...
+// Do sends an HTTP request and returns an HTTP response, following policy (e.g. redirects, cookies, auth) as configured on the client
 func (c *Client) Do(req *http.Request, v interface{}) error {
 	res, err := c.httpClient.Do(req)
 	if err != nil {
@@ -88,7 +92,9 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 	}
 
 	defer func() {
-		_ = res.Body.Close()
+		if err := res.Body.Close(); err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	switch res.StatusCode {
