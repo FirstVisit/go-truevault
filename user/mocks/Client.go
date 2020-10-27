@@ -17,14 +17,14 @@ type Client struct {
 }
 
 // Create provides a mock function with given fields: ctx, username, password, attributes, groupIds, status, accessTokenNotValueAfter
-func (_m *Client) Create(ctx context.Context, username string, password string, attributes string, groupIds []string, status user.Status, accessTokenNotValueAfter time.Time) (user.TvUser, error) {
+func (_m *Client) Create(ctx context.Context, username string, password string, attributes string, groupIds []string, status user.Status, accessTokenNotValueAfter time.Time) (user.User, error) {
 	ret := _m.Called(ctx, username, password, attributes, groupIds, status, accessTokenNotValueAfter)
 
-	var r0 user.TvUser
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, []string, user.Status, time.Time) user.TvUser); ok {
+	var r0 user.User
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, []string, user.Status, time.Time) user.User); ok {
 		r0 = rf(ctx, username, password, attributes, groupIds, status, accessTokenNotValueAfter)
 	} else {
-		r0 = ret.Get(0).(user.TvUser)
+		r0 = ret.Get(0).(user.User)
 	}
 
 	var r1 error
@@ -80,15 +80,15 @@ func (_m *Client) Delete(ctx context.Context, userID string) error {
 }
 
 // Get provides a mock function with given fields: ctx, userId, full
-func (_m *Client) Get(ctx context.Context, userId []string, full bool) ([]user.TvUser, error) {
+func (_m *Client) Get(ctx context.Context, userId []string, full bool) ([]user.User, error) {
 	ret := _m.Called(ctx, userId, full)
 
-	var r0 []user.TvUser
-	if rf, ok := ret.Get(0).(func(context.Context, []string, bool) []user.TvUser); ok {
+	var r0 []user.User
+	if rf, ok := ret.Get(0).(func(context.Context, []string, bool) []user.User); ok {
 		r0 = rf(ctx, userId, full)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]user.TvUser)
+			r0 = ret.Get(0).([]user.User)
 		}
 	}
 
@@ -103,15 +103,15 @@ func (_m *Client) Get(ctx context.Context, userId []string, full bool) ([]user.T
 }
 
 // List provides a mock function with given fields: ctx, status, full
-func (_m *Client) List(ctx context.Context, status user.Status, full bool) ([]user.TvUser, error) {
+func (_m *Client) List(ctx context.Context, status user.Status, full bool) ([]user.User, error) {
 	ret := _m.Called(ctx, status, full)
 
-	var r0 []user.TvUser
-	if rf, ok := ret.Get(0).(func(context.Context, user.Status, bool) []user.TvUser); ok {
+	var r0 []user.User
+	if rf, ok := ret.Get(0).(func(context.Context, user.Status, bool) []user.User); ok {
 		r0 = rf(ctx, status, full)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]user.TvUser)
+			r0 = ret.Get(0).([]user.User)
 		}
 	}
 
@@ -126,14 +126,14 @@ func (_m *Client) List(ctx context.Context, status user.Status, full bool) ([]us
 }
 
 // Update provides a mock function with given fields: ctx, userId, username, password, accessToken, accessTokenNotValueAfter, attributes, status
-func (_m *Client) Update(ctx context.Context, userId string, username string, password string, accessToken string, accessTokenNotValueAfter time.Time, attributes string, status user.Status) (user.TvUser, error) {
+func (_m *Client) Update(ctx context.Context, userId string, username string, password string, accessToken string, accessTokenNotValueAfter time.Time, attributes string, status user.Status) (user.User, error) {
 	ret := _m.Called(ctx, userId, username, password, accessToken, accessTokenNotValueAfter, attributes, status)
 
-	var r0 user.TvUser
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, time.Time, string, user.Status) user.TvUser); ok {
+	var r0 user.User
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, time.Time, string, user.Status) user.User); ok {
 		r0 = rf(ctx, userId, username, password, accessToken, accessTokenNotValueAfter, attributes, status)
 	} else {
-		r0 = ret.Get(0).(user.TvUser)
+		r0 = ret.Get(0).(user.User)
 	}
 
 	var r1 error

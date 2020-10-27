@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// TvUser contains the base access fields required for a TrueVault user
-type TvUser struct {
+// User contains the base access fields required for a TrueVault user
+type User struct {
 	AccessToken string `json:"access_token"`
 	AccountID   string `json:"account_id"`
 	APIKey      string `json:"api_key"`
@@ -45,22 +45,20 @@ func (u *Status) String() string {
 	return u.status
 }
 
-// CRUDResponse contains the response from creating a new TrueVault User
-type CRUDResponse struct {
+type crudResponse struct {
 	Result        string            `json:"result"`
 	TransactionID string            `json:"transaction_id"`
-	User          TvUser            `json:"user"`
+	User          User              `json:"user"`
 	Error         gotruevault.Error `json:"error"`
 }
 
-// GetUserResponse contains the response from creating a new TrueVault User
-type GetUserResponse struct {
-	Result        string   `json:"result"`
-	TransactionID string   `json:"transaction_id"`
-	Users         []TvUser `json:"users"`
+type getUserResponse struct {
+	Result        string `json:"result"`
+	TransactionID string `json:"transaction_id"`
+	Users         []User `json:"users"`
 }
 
-type CreateAPIKeyResponse struct {
+type createAPIKeyResponse struct {
 	ApiKey        string `json:"api_key"`
 	Result        string `json:"result"`
 	TransactionID string `json:"transaction_id"`
@@ -68,24 +66,24 @@ type CreateAPIKeyResponse struct {
 
 //go:generate mockery --name Client
 type Client interface {
-	Get(ctx context.Context, userId []string, full bool) ([]TvUser, error)
-	Create(ctx context.Context, username, password, attributes string, groupIds []string, status Status, accessTokenNotValueAfter time.Time) (TvUser, error)
-	List(ctx context.Context, status Status, full bool) ([]TvUser, error)
-	Update(ctx context.Context, userId, username, password, accessToken string, accessTokenNotValueAfter time.Time, attributes string, status Status) (TvUser, error)
+	Get(ctx context.Context, userId []string, full bool) ([]User, error)
+	Create(ctx context.Context, username, password, attributes string, groupIds []string, status Status, accessTokenNotValueAfter time.Time) (User, error)
+	List(ctx context.Context, status Status, full bool) ([]User, error)
+	Update(ctx context.Context, userId, username, password, accessToken string, accessTokenNotValueAfter time.Time, attributes string, status Status) (User, error)
 	UpdatePassword(ctx context.Context, userId, password string) error
 	Delete(ctx context.Context, userID string) error
 	CreateAccessToken(ctx context.Context, userId string, notValidAfter time.Time) error
 	CreateAPIKey(ctx context.Context, userID string) error
 }
 
-// User implements the Client interface
-type User struct {
+// Service implements the Client interface
+type Service struct {
 	*gotruevault.Client
 }
 
-// New creates a new User service
-func New(client gotruevault.Client) User {
-	return User{&client}
+// New creates a new Service service
+func New(client gotruevault.Client) Service {
+	return Service{&client}
 }
 
 // Get returns information about one or more users. If any IDs aren't valid UUIDs, returns a 400. If any can’t be
@@ -94,10 +92,10 @@ func New(client gotruevault.Client) User {
 // Note: When full=true, this endpoint consumes an Operation for every user returned, so a request with 50 ids will
 //       count as 50 Operations. When full=false, it consumes 1 operation regardless of how many users are returned
 //
-// @param userIds - string(req’d) - comma separated list of user IDs to retrieve. At most 100 ids can be fetched at a time.
-// @param full – boolean(optional, default: ‘false’) - return User attributes and Group IDs. Note: If true, then this
+// userIds - string(req’d) - comma separated list of user IDs to retrieve. At most 100 ids can be fetched at a time.
+// full – boolean(optional, default: ‘false’) - return Service attributes and Group IDs. Note: If true, then this
 //				 endpoint consumes an Operation for every user returned. If false, only a single Operation is used.
-func (u *User) Get(ctx context.Context, userId []string, full bool) ([]TvUser, error) {
+func (u *Service) Get(ctx context.Context, userId []string, full bool) ([]User, error) {
 	if userId == nil || len(userId) == 0 {
 		return nil, errors.New("user id required")
 	}
@@ -110,28 +108,28 @@ func (u *User) Get(ctx context.Context, userId []string, full bool) ([]TvUser, e
 		return nil, err
 	}
 
-	var msg GetUserResponse
+	var msg getUserResponse
 	return msg.Users, u.Do(req, &msg)
 }
 
-// Create creates a new TrueVault User. The username given must be unique to ACTIVATED and LOCKED Users for an
+// Create creates a new TrueVault Service. The username given must be unique to ACTIVATED and LOCKED Users for an
 // Account. Upon creation, both an API_KEY and an ACCESS_TOKEN will be automatically vended to the user. For security
 // reasons, the API_KEY will only be shown upon creation or via the TrueVault Management Console for the account’s
 // administrators. If group_ids is provided, the newly created user will be added to all given groups. The user making
 // the request must have the C Group::GROUPID::GroupMembership::.* or U Group::GROUPID permission for all given groups.
 // Please see authorization for more information regarding recommendations for API_KEY and ACCESS_TOKEN usage.
 //
-// @param username – string(req’d) - username for the User being created
-// @param password – string(optional) - password for the User being created. If created without a password, the user
+// username – string(req’d) - username for the Service being created
+// password – string(optional) - password for the Service being created. If created without a password, the user
 //					 can’t authenticate using the login endpoint, but it can still have an API key. This allows creating
 //		 			 service accounts for backups or other server-to-TrueVault communication.
-// @param attributes – b64 string(optional) - base64 encoded JSON document describing the User attributes
-// @param groupIds   – (optional) - list of group IDs where the new user will be placed
-// @param status     – (optional) - the user’s status, one of ACTIVATED (default), PENDING, or LOCKED
-// @param accessTokenNotValueAfter – (optional) - expiration time of generated access token
-func (u *User) Create(ctx context.Context, username, password, attributes string, groupIds []string, status Status, accessTokenNotValueAfter time.Time) (TvUser, error) {
+// attributes – b64 string(optional) - base64 encoded JSON document describing the Service attributes
+// groupIds   – (optional) - list of group IDs where the new user will be placed
+// status     – (optional) - the user’s status, one of ACTIVATED (default), PENDING, or LOCKED
+// accessTokenNotValueAfter – (optional) - expiration time of generated access token
+func (u *Service) Create(ctx context.Context, username, password, attributes string, groupIds []string, status Status, accessTokenNotValueAfter time.Time) (User, error) {
 	if username == "" {
-		return TvUser{}, errors.New("username required to create user")
+		return User{}, errors.New("username required to create user")
 	}
 
 	data := url.Values{}
@@ -159,25 +157,24 @@ func (u *User) Create(ctx context.Context, username, password, attributes string
 
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(data); err != nil {
-		return TvUser{}, err
+		return User{}, err
 	}
 
 	req, err := u.NewRequest(ctx, http.MethodPost, u.URLBuilder.CreateUserURL(), gotruevault.ContentTypeApplicationJSON, buf)
 	if err != nil {
-		return TvUser{}, err
+		return User{}, err
 	}
 
-	var msg CRUDResponse
+	var msg crudResponse
 	return msg.User, u.Do(req, &msg)
 }
 
 // List returns all Users belonging to an Account.
-//
 // status – string(optional, default: ‘ACTIVATED’) - comma separated list of statuses (inclusive). Accepts any
 //			combination of ACTIVATED, DEACTIVATED, or LOCKED.
-// full – boolean(optional, default: ‘false’) - return User attributes and Group IDs. Note: If true, then this endpoint
+// full – boolean(optional, default: ‘false’) - return Service attributes and Group IDs. Note: If true, then this endpoint
 //		  consumes an Operation for every user returned. If false, only a single Operation is used.
-func (u *User) List(ctx context.Context, status Status, full bool) ([]TvUser, error) {
+func (u *Service) List(ctx context.Context, status Status, full bool) ([]User, error) {
 	q := make(url.Values)
 	q.Set("status", status.String())
 	q.Set("full", strconv.FormatBool(full))
@@ -187,18 +184,17 @@ func (u *User) List(ctx context.Context, status Status, full bool) ([]TvUser, er
 		return nil, err
 	}
 
-	var msg GetUserResponse
+	var msg getUserResponse
 	return msg.Users, u.Do(req, &msg)
 }
 
-// Update a given User’s properties. Strictly overwrites existing values.
-//
-// @Param userId – string(required)
-// @Param full – boolean(optional, default: ‘false’) - return User attributes and Group IDs. Note: If true, then this
+// Update a given Service’s properties. Strictly overwrites existing values.
+// userId – string(required)
+// full – boolean(optional, default: ‘false’) - return Service attributes and Group IDs. Note: If true, then this
 //				 endpoint consumes an Operation for every user returned. If false, only a single Operation is used.
-func (u *User) Update(ctx context.Context, userId, username, password, accessToken string, accessTokenNotValueAfter time.Time, attributes string, status Status) (TvUser, error) {
+func (u *Service) Update(ctx context.Context, userId, username, password, accessToken string, accessTokenNotValueAfter time.Time, attributes string, status Status) (User, error) {
 	if userId == "" {
-		return TvUser{}, errors.New("user id required to update user")
+		return User{}, errors.New("user id required to update user")
 	}
 
 	data := url.Values{}
@@ -228,25 +224,24 @@ func (u *User) Update(ctx context.Context, userId, username, password, accessTok
 
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(data); err != nil {
-		return TvUser{}, err
+		return User{}, err
 	}
 
 	req, err := u.NewRequest(ctx, http.MethodPost, u.URLBuilder.UpdateUserURL(userId), gotruevault.ContentTypeApplicationJSON, buf)
 	if err != nil {
-		return TvUser{}, err
+		return User{}, err
 	}
 
-	var msg CRUDResponse
+	var msg crudResponse
 	return msg.User, u.Do(req, &msg)
 }
 
-// UpdatePassword Updates a given User’s password. Requires the `U` activity on the `User::USERID::Password` or
-// `User::USERID resource`.
+// UpdatePassword Updates a given Service’s password. Requires the `U` activity on the `Service::USERID::Password` or
+// `Service::USERID resource`.
 //
-// @Param userId – string(required)
-// @Returns - nil on success
-//			- ErrorNotFound when user does not exist
-func (u *User) UpdatePassword(ctx context.Context, userId, password string) error {
+// userId – string(required)
+// returns - nil on success otherwise, ErrorNotFound when user does not exist
+func (u *Service) UpdatePassword(ctx context.Context, userId, password string) error {
 	if userId == "" {
 		return errors.New("user id required")
 	}
@@ -268,7 +263,7 @@ func (u *User) UpdatePassword(ctx context.Context, userId, password string) erro
 		return err
 	}
 
-	var msg CRUDResponse
+	var msg crudResponse
 	if err := u.Do(req, &msg); err != nil {
 		return err
 	}
@@ -281,11 +276,11 @@ func (u *User) UpdatePassword(ctx context.Context, userId, password string) erro
 }
 
 // Delete deactivates a user: frees the associated username, all ACCESS_TOKENs, and removes user_id from all Groups.
-// @Warning: This endpoint does not delete any data permanently, unlike the Document and BLOB delete endpoints. If you
+// warning - This endpoint does not delete any data permanently, unlike the Document and BLOB delete endpoints. If you
 //           need to completely purge a user’s data for policy or compliance reasons, first update the user’s attributes
 //           to be {}, then update their username to be a unique random string, then call this endpoint.
-// @Warning: Once the user has been deactivated, it cannot be reactivated via a status update.
-func (u *User) Delete(ctx context.Context, userID string) error {
+// warning - Once the user has been deactivated, it cannot be reactivated via a status update.
+func (u *Service) Delete(ctx context.Context, userID string) error {
 	if userID == "" {
 		return errors.New("user id required")
 	}
@@ -295,7 +290,7 @@ func (u *User) Delete(ctx context.Context, userID string) error {
 		return err
 	}
 
-	var msg CRUDResponse
+	var msg crudResponse
 	if err := u.Do(req, &msg); err != nil {
 		return err
 	}
@@ -308,7 +303,7 @@ func (u *User) Delete(ctx context.Context, userID string) error {
 }
 
 // CreateAccessToken Vends a new `ACCESS_TOKEN` for user_id.
-func (u *User) CreateAccessToken(ctx context.Context, userId string, notValidAfter time.Time) error {
+func (u *Service) CreateAccessToken(ctx context.Context, userId string, notValidAfter time.Time) error {
 	if userId == "" {
 		return errors.New("user id required")
 	}
@@ -326,7 +321,7 @@ func (u *User) CreateAccessToken(ctx context.Context, userId string, notValidAft
 		return err
 	}
 
-	var msg CRUDResponse
+	var msg crudResponse
 	if err := u.Do(req, &msg); err != nil {
 		return err
 	}
@@ -340,7 +335,7 @@ func (u *User) CreateAccessToken(ctx context.Context, userId string, notValidAft
 
 // CreateAPIKey replaces the current `API_KEY` for user_id. Companion to `ACCESS_TOKEN` method. Must have `U` group
 // permissions for the user.
-func (u *User) CreateApiKey(ctx context.Context, userID string) (string, error) {
+func (u *Service) CreateApiKey(ctx context.Context, userID string) (string, error) {
 	if userID == "" {
 		return "", errors.New("user id required")
 	}
@@ -350,6 +345,6 @@ func (u *User) CreateApiKey(ctx context.Context, userID string) (string, error) 
 		return "", err
 	}
 
-	var msg CreateAPIKeyResponse
+	var msg createAPIKeyResponse
 	return msg.ApiKey, u.Do(req, &msg)
 }
