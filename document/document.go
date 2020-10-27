@@ -67,21 +67,17 @@ func New(client gotruevault.Client) Document {
 
 // SearchDocument https://docs.truevault.com/documentsearch#search-documents
 func (r *TrueVaultDocument) SearchDocument(ctx context.Context, vaultID string, filter gotruevault.SearchOption) (SearchDocumentResult, error) {
-	var result SearchDocumentResult
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(filter); err != nil {
 		return SearchDocumentResult{}, err
 	}
 
 	path := r.URLBuilder.SearchDocumentURL(vaultID)
-
 	req, err := r.NewRequest(ctx, http.MethodPost, path, gotruevault.ContentTypeApplicationJSON, buf)
-
 	if err != nil {
 		return SearchDocumentResult{}, err
 	}
 
-	err = r.Do(req, &result)
-
-	return result, err
+	var result SearchDocumentResult
+	return result, r.Do(req, &result)
 }
