@@ -26,14 +26,24 @@ type TvUser struct {
 }
 
 // Status indicates the state of the user
-type Status string
+type Status struct {
+	status string
+}
 
-const (
-	Activated   Status = "ACTIVATED"
-	Pending     Status = "PENDING"
-	Locked      Status = "LOCKED"
-	Deactivated Status = "DEACTIVATED"
+var (
+	// Activated the user is active in TV
+	Activated = Status{status: "ACTIVATED"}
+	// Pending the user is pending in TV
+	Pending = Status{status: "PENDING"}
+	// Locked the user is locked in TV
+	Locked = Status{status: "LOCKED"}
+	// Deactivated the user is deactivated in TV
+	Deactivated = Status{status: "DEACTIVATED"}
 )
+
+func (u *Status) String() string {
+	return u.status
+}
 
 // CRUDResponse contains the response from creating a new TrueVault User
 type CRUDResponse struct {
@@ -139,9 +149,8 @@ func (u *User) Create(ctx context.Context, username, password, attributes string
 		data.Set("group_ids", strings.Join(groupIds, ","))
 	}
 
-	// TODO: Force empty string to be invalid. Should default (zero) to ACTIVATED
-	if status != "" {
-		data.Set("status", string(status))
+	if status.String() != "" {
+		data.Set("status", status.String())
 	}
 
 	if !accessTokenNotValueAfter.IsZero() {
@@ -170,7 +179,7 @@ func (u *User) Create(ctx context.Context, username, password, attributes string
 //		  consumes an Operation for every user returned. If false, only a single Operation is used.
 func (u *User) List(ctx context.Context, status Status, full bool) ([]TvUser, error) {
 	q := make(url.Values)
-	q.Set("status", string(status))
+	q.Set("status", status.String())
 	q.Set("full", strconv.FormatBool(full))
 
 	req, err := u.NewRequest(ctx, http.MethodGet, u.URLBuilder.ListUserURL(q), gotruevault.ContentTypeApplicationJSON, nil)
@@ -213,9 +222,8 @@ func (u *User) Update(ctx context.Context, userId, username, password, accessTok
 		data.Set("attributes", attributes)
 	}
 
-	// TODO: Force empty string to be invalid. Should default (zero) to ACTIVATED
-	if status != "" {
-		data.Set("status", string(status))
+	if status.String() != "" {
+		data.Set("status", status.String())
 	}
 
 	buf := new(bytes.Buffer)
